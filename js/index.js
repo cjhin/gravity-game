@@ -14,6 +14,8 @@ $(document).ready(function() {
   var w = canvas.width();
   var h = canvas.height();
 
+  var currLevel = 0;
+
   seedIntro();
   setInterval(animate, 90);
 
@@ -22,11 +24,13 @@ $(document).ready(function() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, w, h);
 
-    ctx.fillStyle = "rgb(240, 220, 130)";
-    ctx.font = "lighter 70px Helvetica";
-    ctx.fillText("Gravity Sim v9.8", 85, 110);
+    if(currLevel == 0) {
+      ctx.fillStyle = "rgb(240, 220, 130)";
+      ctx.font = "lighter 70px Helvetica";
+      ctx.fillText("Gravity Sim v9.8", 85, 110);
 
-    drawIntroButtons();
+      drawIntroButtons();
+    }
 
     //draw planets
     for(var i = 0; i<planets.length; i++) {
@@ -101,14 +105,17 @@ $(document).ready(function() {
 
   //buttons for the intro screen
   function drawIntroButtons() {
-    ctx.strokeStyle = "rgb(255, 100, 70)";
-  	ctx.strokeRect(160, 500, 150, 50);
-  	ctx.strokeRect(380, 500, 150, 50);
+    if($("#arcade-button").length < 1) {
+      $("#canvas-wrapper").append("<button id='arcade-button' class='gravity-button'>Arcade</button>");
+      $("#arcade-button").on("click", function() {
+        currLevel = 1;
+        $(".gravity-button").remove();
+      });
+    }
 
-    ctx.fillStyle = "rgb(255, 100, 70)";
-    ctx.font = "lighter 30px Helvetica";
-    ctx.fillText("Sandbox", 180, 535);
-    ctx.fillText("Arcade", 410, 535);
+    if($("#sandbox-button").length < 1) {
+      $("#canvas-wrapper").append("<button id='sandbox-button' class='gravity-button'>Sandbox</button>");
+    }
   }
 
   //seed the intro animation
