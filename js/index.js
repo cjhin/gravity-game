@@ -16,9 +16,44 @@ $(document).ready(function() {
 
   var currLevel = 0;
 
+  var clickNum = 1;
+
   readLevels();
   seedIntro();
   setInterval(animate, 90);
+
+  canvas.on("click", function(event) {
+    if(currLevel > 0) {
+      clickX = parseInt(event.offsetX);
+      clickY = parseInt(event.offsetY);
+
+      if(clickNum == 1) {
+        ships = [];
+        ships.push({xPos: clickX, yPos: clickY, radius: 4, mass: 0});
+        clickNum = 2;
+      } else if(clickNum == 2) {
+        s = ships[0];
+        s.radius = 5;
+        s.mass = 1000;
+        s.xVel = (clickX-s.xPos)/4.0;
+        s.yVel = (clickY-s.yPos)/4.0;
+
+        //velocity cap
+        var velMax=15;
+
+        if(ships[0].xVel>velMax)
+          ships[0].xVel=velMax;
+        else if(ships[0].xVel<-1*velMax)
+          ships[0].xVel=-1*velMax;
+        if(ships[0].yVel>velMax)
+          ships[0].yVel=velMax;
+        else if(ships[0].yVel<-1*velMax)
+          ships[0].yVel=-1*velMax;
+
+        clickNum = 1;
+      }
+    }
+  });
 
   function animate() {
     // Lets paint the canvas now
@@ -52,6 +87,9 @@ $(document).ready(function() {
   function updateShipPosition(shipIdx) {
     var netXForce=0;
     var netYForce=0;
+
+    // ship isn't ready to fly
+    if(ships[shipIdx].mass == 0) { return }
 
     for(var i = 0; i<planets.length; i++) {
       var x1 = ships[shipIdx].xPos;
@@ -127,6 +165,7 @@ $(document).ready(function() {
 
   function seedPlanets(level) {
     planets = [];
+    ships = [];
     levelData.forEach(function(p){
       if(parseInt(p.level) == level) {
         planets.push(p);
