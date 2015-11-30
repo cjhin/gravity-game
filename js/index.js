@@ -5,7 +5,7 @@ $(document).ready(function() {
   var planets = [];
   var ships = [];
 
-  var levels = [];
+  var levelData = [];
 
   var canvas = $("#canvas");
 
@@ -16,6 +16,7 @@ $(document).ready(function() {
 
   var currLevel = 0;
 
+  readLevels();
   seedIntro();
   setInterval(animate, 90);
 
@@ -108,7 +109,7 @@ $(document).ready(function() {
     if($("#arcade-button").length < 1) {
       $("#canvas-wrapper").append("<button id='arcade-button' class='gravity-button'>Arcade</button>");
       $("#arcade-button").on("click", function() {
-        currLevel = 1;
+        seedPlanets(1);
         $(".gravity-button").remove();
       });
     }
@@ -116,6 +117,22 @@ $(document).ready(function() {
     if($("#sandbox-button").length < 1) {
       $("#canvas-wrapper").append("<button id='sandbox-button' class='gravity-button'>Sandbox</button>");
     }
+  }
+
+  function readLevels() {
+    d3.csv("levels.csv", function(data) {
+      levelData = data;
+    });
+  }
+
+  function seedPlanets(level) {
+    planets = [];
+    levelData.forEach(function(p){
+      if(parseInt(p.level) == level) {
+        planets.push(p);
+      }
+    });
+    currLevel = level;
   }
 
   //seed the intro animation
