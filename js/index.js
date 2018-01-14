@@ -76,9 +76,43 @@ $(document).ready(function() {
 
     //draw ships
     for(var i = 0; i<ships.length; i++) {
-      updateShipPosition(i);
+      if(ships[i].mass > 0) {
+        updateShipPosition(i);
+        checkCollision(i);
+      }
       ctx.strokeStyle = "rgb(50, 250, 30)";
       drawBall(ships[i].xPos, ships[i].yPos, ships[i].radius);
+    }
+  }
+
+  function checkCollision(shipIdx) {
+    var sx = ships[shipIdx].xPos;
+    var sy = ships[shipIdx].yPos;
+    var sr = ships[shipIdx].radius;
+    var svx = ships[shipIdx].xVel;
+    var svy = ships[shipIdx].yVel;
+
+    for(var i = 0; i<planets.length; i++) {
+      var px = planets[i].xPos;
+      var py = planets[i].yPos;
+      var pr = planets[i].radius;
+
+      //collision has occured
+      //sx+.5*svx = current position + 1/2 of the velocity, (second set of conditionals)
+      //are for when the current and future positions are/will not be within the planet radius,
+      //but the path will go through the planet. (in other words when the ship is going too fast to catch the collision)
+      //Checking the "midpoint" effectively takes care of most of these instances.
+      //if((sx>px && sx<2*(px+pr) && sy>py && sy<2*(py+pr)) || (sx+0.5*svx>px && sx+0.5*svx<2*(px+pr) && sy+0.5*svy>py && sy+0.5*svy<2*(py+pr))){
+      if( (sx-sr < px+pr) && (sx+sr > px-pr) && (sy-sr < py+pr) && (sy+sr > py-pr) ) {
+        console.log(shipIdx);
+        console.log(ships.length);
+        console.log(sx, sy, sr);
+        console.log(px, py, pr);
+        ships[shipIdx].mass=-1;//this will signal to animate that the ship is "dead"
+        //totalScore+=score;
+        seedPlanets(currLevel + 1);
+        return; // stop checking, collision occured.
+      }
     }
   }
 
@@ -87,9 +121,6 @@ $(document).ready(function() {
   function updateShipPosition(shipIdx) {
     var netXForce=0;
     var netYForce=0;
-
-    // ship isn't ready to fly
-    if(ships[shipIdx].mass == 0) { return }
 
     for(var i = 0; i<planets.length; i++) {
       var x1 = ships[shipIdx].xPos;
